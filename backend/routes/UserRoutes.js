@@ -9,7 +9,7 @@ const {
 
 router.post("/create", registerUser);
 router.post("/login", loginUser);
-router.put("/update", updateUser);
-router.delete("/delete", deleteUser);
+router.put("/update/:_id", updateUser);
+router.delete("/delete:_id", deleteUser);
 
 module.exports = router;
