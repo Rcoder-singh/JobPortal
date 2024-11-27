@@ -25,4 +25,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.add({ bio: { type: String }, profession: { type: String } });
+
 module.exports = mongoose.model("users", userSchema);
