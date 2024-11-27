@@ -1,6 +1,9 @@
 const UserCollection = require("../models/UserModel");
 const bcrypt = require("bcryptjs");
 const salt = bcrypt.genSaltSync(10);
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 const registerUser = async (req, res) => {
   let { name, email, password, role } = req.body;
 
@@ -52,9 +55,13 @@ const loginUser = async (req, res) => {
     if (findUser) {
       let comparedPassword = bcrypt.compareSync(password, findUser.password);
       if (comparedPassword) {
+        let token = jwt.sign(
+          { id: findUser._id, role: findUser.role },
+          process.env.JWT_SECRET
+        );
         res
           .status(200)
-          .json({ msg: "Login successfully", success: true, user: findUser });
+          .json({ msg: "Login successfully", success: true, token: token });
       } else {
         return res.json({ msg: "Wrong password", success: false });
       }
@@ -71,11 +78,19 @@ const loginUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  res.send("update function is running");
+  let _id = req.params._id;
+  const { name, password, bio, profession } = req.body;
+  if (password) var hashedPassword = bcrypt.hashSync(password, salt);
+  let data = await UserCollection.findByIdAndUpdate(_id, {
+    $set: { name, password: hashedPassword, bio, profession },
+  });
+  res.status(200).json({ msg: "User updated successfully", success: true });
 };
 
 const deleteUser = async (req, res) => {
-  res.send("delete function is running");
+  let _id = req.params._id;
+  let data = await UserCollection.findByIdAndUpdate(_id);
+  res.status(200).json({ msg: "User deleted successfully", success: true });
 };
 
 module.exports = {
