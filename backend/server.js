@@ -8,7 +8,10 @@ const connection = require("./Db");
 connection();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); //* Middleware
+
+//! Middleware are functions that can have the access of requesting to an object and responding to an object.
+//! They can modify the request and response and can also be used between routes.
 
 app.get("/", (req, res) => {
   res.send("Welcome Page");

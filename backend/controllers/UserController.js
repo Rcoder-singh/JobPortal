@@ -56,7 +56,7 @@ const loginUser = async (req, res) => {
       let comparedPassword = bcrypt.compareSync(password, findUser.password);
       if (comparedPassword) {
         let token = jwt.sign(
-          { id: findUser._id, role: findUser.role },
+          { _id: findUser._id, role: findUser.role },
           process.env.JWT_SECRET
         );
         res
@@ -78,19 +78,52 @@ const loginUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  let _id = req.params._id;
   const { name, password, bio, profession } = req.body;
-  if (password) var hashedPassword = bcrypt.hashSync(password, salt);
-  let data = await UserCollection.findByIdAndUpdate(_id, {
-    $set: { name, password: hashedPassword, bio, profession },
-  });
-  res.status(200).json({ msg: "User updated successfully", success: true });
+  try {
+    let { _id, role } = req.user;
+    let userId = req.params._id;
+    console.log("Login user id = ", _id);
+    console.log("Params id = ", userId);
+    if (_id == userId) {
+      if (password) {
+        var hashedPassword = bcrypt.hashSync(password, salt);
+      }
+      let data = await UserCollection.findByIdAndUpdate(_id, {
+        $set: { name, password: hashedPassword, bio, profession },
+      });
+      res
+        .status(200)
+        .json({ msg: "User updated successfully", success: true, data });
+    }
+  } catch (error) {
+    res.status(500).json({
+      msg: "Error updating user ",
+      success: false,
+      error: error.message,
+    });
+  }
 };
 
 const deleteUser = async (req, res) => {
-  let _id = req.params._id;
-  let data = await UserCollection.findByIdAndUpdate(_id);
-  res.status(200).json({ msg: "User deleted successfully", success: true });
+  const { _id, role } = req.user;
+
+  try {
+    let paramsId = req.params._id;
+    console.log("Login user id = ", _id);
+    console.log("Params id = ", paramsId);
+    if (_id == paramsId) {
+      let data = await UserCollection.findByIdAndDelete(_id);
+      res.status(200).json({ msg: "User deleted successfully", success: true });
+    } else {
+      res.status(403).json({ msg: "User not authorized", success: false });
+    }
+  } catch (error) {
+    res.status(500).json({
+      msg: "Error deleting user ",
+      success: false,
+      error: error.message,
+    });
+  }
 };
 
 module.exports = {

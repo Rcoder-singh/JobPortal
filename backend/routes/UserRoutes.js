@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const checkToken = require("../middleware/checkToken");
 const {
   registerUser,
   loginUser,
@@ -9,7 +10,7 @@ const {
 
 router.post("/create", registerUser);
 router.post("/login", loginUser);
-router.put("/update/:_id", updateUser);
-router.delete("/delete:_id", deleteUser);
+router.put("/update/:_id", checkToken, updateUser);
+router.delete("/delete/:_id",checkToken, deleteUser);
 
 module.exports = router;
